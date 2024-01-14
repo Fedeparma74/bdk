@@ -686,6 +686,7 @@ impl<'a, D> TxBuilder<'a, D, DefaultCoinSelectionAlgorithm, BumpFee> {
 /// Ordering of the transaction's inputs and outputs
 #[derive(Debug, Ord, PartialOrd, Eq, PartialEq, Hash, Clone, Copy)]
 pub enum TxOrdering {
+    #[cfg(feature = "std")]
     /// Randomized (default)
     Shuffle,
     /// Unchanged
@@ -696,7 +697,12 @@ pub enum TxOrdering {
 
 impl Default for TxOrdering {
     fn default() -> Self {
-        TxOrdering::Shuffle
+        #[cfg(feature = "std")]
+        let ordering = TxOrdering::Shuffle;
+        #[cfg(not(feature = "std"))]
+        let ordering = TxOrdering::Untouched;
+
+        ordering
     }
 }
 
@@ -705,6 +711,7 @@ impl TxOrdering {
     pub fn sort_tx(&self, tx: &mut Transaction) {
         match self {
             TxOrdering::Untouched => {}
+            #[cfg(feature = "std")]
             TxOrdering::Shuffle => {
                 use rand::seq::SliceRandom;
                 let mut rng = rand::thread_rng();

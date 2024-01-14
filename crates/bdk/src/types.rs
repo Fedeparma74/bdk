@@ -126,7 +126,21 @@ impl FeeRate {
 
     /// Calculate absolute fee in Satoshis using size in virtual bytes.
     pub fn fee_vb(&self, vbytes: usize) -> u64 {
-        (self.as_sat_per_vb() * vbytes as f32).ceil() as u64
+        #[cfg(feature = "std")]
+        let fee_vb = (self.as_sat_per_vb() * vbytes as f32).ceil() as u64;
+        #[cfg(not(feature = "std"))]
+        let fee_vb = {
+            let ceil = |x: f32| -> u32 {
+                if x - (x as u32 as f32) > 0.0 {
+                    x as u32 + 1
+                } else {
+                    x as u32
+                }
+            };
+            ceil(self.as_sat_per_vb() * vbytes as f32) as u64
+        };
+
+        fee_vb
     }
 }
 
@@ -153,7 +167,21 @@ pub trait Vbytes {
 impl Vbytes for usize {
     fn vbytes(self) -> usize {
         // ref: https://github.com/bitcoin/bips/blob/master/bip-0141.mediawiki#transaction-size-calculations
-        (self as f32 / 4.0).ceil() as usize
+        #[cfg(feature = "std")]
+        let vbytes = (self as f32 / 4.0).ceil() as usize;
+        #[cfg(not(feature = "std"))]
+        let vbytes = {
+            let ceil = |x: f32| -> u32 {
+                if x - (x as u32 as f32) > 0.0 {
+                    x as u32 + 1
+                } else {
+                    x as u32
+                }
+            };
+            ceil(self as f32 / 4.0) as usize
+        };
+
+        vbytes
     }
 }
 

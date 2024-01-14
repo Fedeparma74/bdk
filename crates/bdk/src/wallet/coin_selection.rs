@@ -631,6 +631,7 @@ impl BranchAndBoundCoinSelection {
         drain_script: &Script,
         fee_rate: FeeRate,
     ) -> CoinSelectionResult {
+        #[cfg(feature = "std")]
         optional_utxos.shuffle(&mut rand::thread_rng());
         let selected_utxos = optional_utxos.into_iter().fold(
             (curr_value, vec![]),

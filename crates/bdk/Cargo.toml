@@ -14,11 +14,11 @@ rust-version = "1.57"
 
 [dependencies]
 log = "=0.4.18"
-rand = "^0.8"
-miniscript = { version = "9", features = ["serde"], default-features = false }
-bitcoin = { version = "0.29", features = ["serde", "base64", "rand"], default-features = false }
-serde = { version = "^1.0", features = ["derive"] }
-serde_json = { version = "^1.0" }
+rand = { version = "0.8", default-features = false }
+miniscript = { git = "https://github.com/Fedeparma74/rust-miniscript", branch = "v9.0.2-no_std", features = ["serde"], default-features = false }
+bitcoin = { version = "0.29", features = ["serde"], default-features = false }
+serde = { version = "^1.0", default-features = false, features = ["derive"] }
+serde_json = { version = "1.0", default-features = false, features = ["alloc"] }
 bdk_chain = { path = "../chain", version = "0.5.0", features = ["miniscript", "serde"], default-features = false }
 
 # Optional dependencies
@@ -31,7 +31,8 @@ js-sys = "0.3"
 
 [features]
 default = ["std"]
-std = ["bitcoin/std", "miniscript/std", "bdk_chain/std"]
+std = ["rand/default", "serde/default", "bitcoin/std", "bitcoin/base64", "miniscript/std", "bdk_chain/std"]
+no-std = ["bitcoin/no-std", "miniscript/no-std", "bdk_chain/no-std"]
 compiler = ["miniscript/compiler"]
 all-keys = ["keys-bip39"]
 keys-bip39 = ["bip39"]
